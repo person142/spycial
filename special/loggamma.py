@@ -1,0 +1,130 @@
+# An implementation of the principal branch of the logarithm of
+# Gamma. Also contains implementations of Gamma and 1/Gamma which are
+# easily computed from log-Gamma.
+#
+# Author: Josh Wilson
+#
+# Distributed under the same license as Scipy.
+#
+# References
+# ----------
+# [1] Hare, "Computing the Principal Branch of log-Gamma",
+#     Journal of Algorithms, 1997.
+#
+# [2] Julia,
+#     https://github.com/JuliaLang/julia/blob/master/base/special/gamma.jl
+#
+import numpy as np
+from numba import jit, vectorize
+
+from .trig import _csinpi
+from .evalpoly import _cevalpoly
+
+TWOPI = 6.2831853071795864769252842  # 2*pi
+LOGPI = 1.1447298858494001741434262  # log(pi)
+HLOG2PI = 0.918938533204672742  # log(2*pi)/2
+SMALLX = 7
+SMALLY = 7
+TAYLOR_RADIUS = 0.2
+
+
+@jit('complex128(complex128)', nopython=True)
+def _loggamma_stirling(z):
+    """Stirling series for log-Gamma.
+
+    The coefficients are B[2*n]/(2*n*(2*n - 1)) where B[2*n] is the
+    (2*n)th Bernoulli number. See (1.1) in [1].
+
+    """
+    coeffs = np.array([
+        -2.955065359477124183e-2, 6.4102564102564102564e-3,
+        -1.9175269175269175269e-3, 8.4175084175084175084e-4,
+        -5.952380952380952381e-4, 7.9365079365079365079e-4,
+        -2.7777777777777777778e-3, 8.3333333333333333333e-2
+    ])
+    rz = 1.0/z
+    rzz = rz/z
+
+    return (z - 0.5)*np.log(z) - z + HLOG2PI + rz*_cevalpoly(coeffs, 7, rzz)
+
+
+@jit('complex128(complex128)', nopython=True)
+def _loggamma_recurrence(z):
+    """Backward recurrence relation.
+
+    See Proposition 2.2 in [1] and the Julia implementation [2].
+
+    """
+    signflips = 0
+    sb = 0
+    shiftprod = z
+
+    z += 1
+    while z.real <= SMALLX:
+        shiftprod *= z
+        nsb = np.signbit(shiftprod.imag)
+        signflips += 1 if nsb != 0 and sb == 0 else 0
+        sb = nsb
+        z += 1
+    return _loggamma_stirling(z) - np.log(shiftprod) - signflips*TWOPI*1J
+
+
+@jit('complex128(complex128)', nopython=True)
+def _loggamma_taylor(z):
+    """Taylor series for log-Gamma around z = 1.
+
+    It is
+
+    loggamma(z + 1) = -gamma*z + zeta(2)*z**2/2 - zeta(3)*z**3/3 ...
+
+    where gamma is the Euler-Mascheroni constant.
+
+    """
+    coeffs = np.array([
+        -4.3478266053040259361e-2, 4.5454556293204669442e-2,
+        -4.7619070330142227991e-2, 5.000004769810169364e-2,
+        -5.2631679379616660734e-2, 5.5555767627403611102e-2,
+        -5.8823978658684582339e-2, 6.2500955141213040742e-2,
+        -6.6668705882420468033e-2, 7.1432946295361336059e-2,
+        -7.6932516411352191473e-2, 8.3353840546109004025e-2,
+        -9.0954017145829042233e-2, 1.0009945751278180853e-1,
+        -1.1133426586956469049e-1, 1.2550966952474304242e-1,
+        -1.4404989676884611812e-1, 1.6955717699740818995e-1,
+        -2.0738555102867398527e-1, 2.7058080842778454788e-1,
+        -4.0068563438653142847e-1, 8.2246703342411321824e-1,
+        -5.7721566490153286061e-1
+    ])
+
+    z = z - 1
+    return z*_cevalpoly(coeffs, 22, z)
+
+
+@jit(['complex128(complex128)'], nopython=True)
+def _loggamma(z):
+    """Compute the principal branch of log-Gamma."""
+
+    if np.isnan(z):
+        return np.complex(np.nan, np.nan)
+    elif z.real <= 0 and z == np.floor(z.real):
+        return np.complex(np.nan, np.nan)
+    elif z.real > SMALLX or abs(z.imag) > SMALLY:
+        return _loggamma_stirling(z)
+    elif abs(z - 1) <= TAYLOR_RADIUS:
+        return _loggamma_taylor(z)
+    elif abs(z - 2) <= TAYLOR_RADIUS:
+        # Recurrence relation and the Taylor series around 1
+        return np.log(z - 1) + _loggamma_taylor(z - 1)
+    elif z.real < 0.1:
+        # Reflection formula; see Proposition 3.1 in [1]
+        tmp = np.copysign(TWOPI, z.imag)*np.floor(0.5*z.real + 0.25)
+        return np.complex(LOGPI, tmp) - np.log(_csinpi(z)) - _loggamma(1 - z)
+    elif np.signbit(z.imag) == 0:
+        # z.imag >= 0 but is not -0.0
+        return _loggamma_recurrence(z)
+    else:
+        return _loggamma_recurrence(z.conjugate()).conjugate()
+
+
+@vectorize(['complex128(complex128)'], nopython=True)
+def loggamma(z):
+    return _loggamma(z)

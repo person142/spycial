@@ -12,8 +12,9 @@ References
 [1] Knuth, "The Art of Computer Programming, Volume II"
 
 """
-import numpy as np
 from numba import jit
+
+from .fma import _fma
 
 
 @jit('complex128(float64[:], intc, complex128)', nopython=True)
@@ -31,7 +32,6 @@ def _cevalpoly(coeffs, degree, z):
 
     for j in range(2, degree + 1):
         tmp = b
-        # Would be nice to use FMA here again
-        b = -s*a + coeffs[j]
-        a = r*a + tmp
+        b = _fma(-s, a, coeffs[j])
+        a = _fma(r, a, tmp)
     return z*a + b

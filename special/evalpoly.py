@@ -13,11 +13,13 @@ References
 
 """
 from numba import jit
+from numba.types import complex128, float64, intc, Array
 
 from .fma import _fma
 
 
-@jit('complex128(float64[:], intc, complex128)', nopython=True)
+@jit(complex128(Array(float64, 1, "C", readonly=True), intc, complex128),
+     nopython=True)
 def _cevalpoly(coeffs, degree, z):
     """Evaluate a polynomial with real coefficients at a complex point.
 

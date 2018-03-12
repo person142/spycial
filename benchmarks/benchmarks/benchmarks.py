@@ -6,47 +6,44 @@ import scipy.special._ufuncs as scipy_sc_ufuncs
 
 
 class Trig():
+    params = [('cospi', 'sinpi'), ('real', 'complex'),
+              ('SciPy', 'Numba')]
+    param_names = ['Function', 'Type', 'API']
 
-    def setup(self):
+    def setup(self, f, typ, api):
         x = np.linspace(-1000, 1000, 100)
-        self.x = x
-        x, y = np.meshgrid(x, x)
-        self.z = x + 1j*y
+        if typ == 'real':
+            self.x = x
+        else:
+            x, y = np.meshgrid(x, x)
+            self.x = x + 1j*y
 
-    def time_sinpi_real(self):
-        sc.sinpi(self.x)
+        if f == 'cospi' and api == 'SciPy':
+            self.f = scipy_sc_ufuncs._cospi
+        elif f == 'cospi' and api == 'Numba':
+            self.f = sc.cospi
+        elif f == 'sinpi' and api == 'SciPy':
+            self.f = scipy_sc_ufuncs._sinpi
+        else:
+            self.f = sc.sinpi
 
-    def time_scipy_sinpi_real(self):
-        scipy_sc_ufuncs._sinpi(self.x)
-
-    def time_cospi_real(self):
-        sc.cospi(self.x)
-
-    def time_scipy_cospi_real(self):
-        scipy_sc_ufuncs._cospi(self.x)
-
-    def time_sinpi_complex(self):
-        sc.sinpi(self.z)
-
-    def time_scipy_sinpi_complex(self):
-        scipy_sc_ufuncs._sinpi(self.z)
-
-    def time_cospi_complex(self):
-        sc.cospi(self.z)
-
-    def time_scipy_cospi_complex(self):
-        scipy_sc_ufuncs._cospi(self.z)
+    def time_trig(self, f, typ, api):
+        self.f(self.x)
 
 
 class Loggamma():
+    params = [('loggamma',), ('SciPy', 'Numba')]
+    param_names = ['Function', 'API']
 
-    def setup(self):
+    def setup(self, name, api):
         x = np.linspace(-1000, 1000, 100)
         x, y = np.meshgrid(x, x)
         self.z = x + 1j*y
 
-    def time_loggamma(self):
-        sc.loggamma(self.z)
+        if api == 'SciPy':
+            self.f = scipy_sc.loggamma
+        else:
+            self.f = sc.loggamma
 
-    def time_scipy_loggamma(self):
-        scipy_sc.loggamma(self.z)
+    def time_loggamma(self, name, api):
+        self.f(self.z)

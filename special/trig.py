@@ -1,11 +1,11 @@
 import numpy as np
-from numba import jit, generated_jit, vectorize, types
+from numba import njit, generated_jit, vectorize, types
 
 
 eps = np.finfo('float64').eps
 
 
-@vectorize('float64(float64)', nopython=True)
+@njit('float64(float64)')
 def _dsinpi(x):
     """Compute sin(pi*x) for real arguments."""
     p = np.ceil(x)
@@ -25,7 +25,7 @@ def _dsinpi(x):
     return np.sin(np.pi*x)
 
 
-@jit('float64(float64)', nopython=True)
+@njit('float64(float64)')
 def _dcospi_taylor(x):
     """Taylor series for cos(pi*x) around x = 0.5. Since the root is
     exactly representable in double precision we get gains over just
@@ -44,7 +44,7 @@ def _dcospi_taylor(x):
     return res
 
 
-@vectorize(['float64(float64)'], nopython=True)
+@njit('float64(float64)')
 def _dcospi(x):
     """Compute cos(pi*x) for real arguments."""
     p = np.ceil(x)
@@ -63,7 +63,7 @@ def _dcospi(x):
         return np.cos(np.pi*x)
 
 
-@vectorize('complex128(complex128)', nopython=True)
+@njit('complex128(complex128)')
 def _csinpi(z):
     """Compute sin(pi*z) for complex arguments."""
     x = z.real
@@ -101,7 +101,7 @@ def _csinpi(z):
     return np.complex(coshfac*exphpiy, sinhfac*exphpiy)
 
 
-@vectorize(['complex128(complex128)'], nopython=True)
+@njit('complex128(complex128)')
 def _ccospi(z):
     """Compute cos(pi*z) for complex arguments."""
     x = z.real
@@ -132,20 +132,30 @@ def _ccospi(z):
 
 
 @generated_jit(nopython=True)
-def sinpi(arr):
-    if arr.dtype == types.float64:
-        return lambda arr: _dsinpi(arr)
-    elif arr.dtype == types.complex128:
-        return lambda arr: _csinpi(arr)
+def _sinpi(a):
+    if a == types.float64:
+        return lambda a: _dsinpi(a)
+    elif a == types.complex128:
+        return lambda a: _csinpi(a)
     else:
         raise NotImplementedError
+
+
+@vectorize(['float64(float64)', 'complex128(complex128)'], nopython=True)
+def sinpi(x):
+    return _sinpi(x)
 
 
 @generated_jit(nopython=True)
-def cospi(arr):
-    if arr.dtype == types.float64:
-        return lambda arr: _dcospi(arr)
-    elif arr.dtype == types.complex128:
-        return lambda arr: _ccospi(arr)
+def _cospi(a):
+    if a == types.float64:
+        return lambda a: _dcospi(a)
+    elif a == types.complex128:
+        return lambda a: _ccospi(a)
     else:
         raise NotImplementedError
+
+
+@vectorize(['float64(float64)', 'complex128(complex128)'], nopython=True)
+def cospi(x):
+    return _cospi(x)

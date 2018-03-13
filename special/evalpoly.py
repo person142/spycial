@@ -26,7 +26,7 @@ def _devalpoly(coeffs, x):
     """Evaluate a polynomial using Horner's method."""
     res = coeffs[0]
 
-    for j in range(1, len(coeffs) + 1):
+    for j in range(1, len(coeffs)):
         res = _fma(res, x, coeffs[j])
 
     return res
@@ -64,11 +64,11 @@ def _devalrational(coeffs_num, coeffs_denom, x):
         y = 1.0/x
 
         num = coeffs_num[-1]
-        for j in range(len(coeffs_num) - 1, -1, -1):
+        for j in range(len(coeffs_num) - 2, -1, -1):
             num = _fma(num, y, coeffs_num[j])
 
         denom = coeffs_denom[-1]
-        for j in range(len(coeffs_denom) - 1, -1, -1):
+        for j in range(len(coeffs_denom) - 2, -1, -1):
             denom = _fma(denom, y, coeffs_denom[j])
 
         return x**(len(coeffs_denom) - len(coeffs_num))*num/denom

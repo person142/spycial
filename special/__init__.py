@@ -1,2 +1,2 @@
 from .trig import sinpi, cospi
-from .loggamma import loggamma
+from .gamma import lgamma, loggamma

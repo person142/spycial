@@ -1,15 +1,21 @@
-import numpy as np
-from numpy.testing import assert_allclose
+import mpmath
 
 import special as sc
-import scipy.special as scipy_sc
+from special.test_utilities import mpmath_allclose, Arg, ComplexArg
 
 
 def test_loggamma():
-    x = np.linspace(-1000, 1000)
-    x, y = np.meshgrid(x, x)
-    z = x + 1j*y
-    assert_allclose(sc.loggamma(z), scipy_sc.loggamma(z))
+    def mpmath_loggamma(x):
+        try:
+            return mpmath.loggamma(x)
+        except ValueError:
+            # Hit a pole
+            return np.nan
+
+    b = 1e300
+    mpmath_allclose(sc.loggamma, mpmath_loggamma,
+                    [ComplexArg(complex(-b, -b), complex(b, b))],
+                     1000, 1e-13)
 
 
 def test_lgamma():

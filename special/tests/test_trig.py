@@ -1,30 +1,29 @@
 import numpy as np
-from numpy.testing import assert_allclose
-import scipy.special as scipy_sc
-import scipy.special._ufuncs as scipy_sc_ufuncs
+import mpmath
 
 import special as sc
+from special.test_utilities import mpmath_allclose, Arg, ComplexArg
 
 
 def test_sinpi_real():
-    x = np.linspace(-100, 100)
-    assert_allclose(sc.sinpi(x), scipy_sc_ufuncs._sinpi(x))
+    rtol = 2*np.finfo(float).eps
+    mpmath_allclose(sc.sinpi, mpmath.sinpi, [Arg()], 1000, rtol)
 
 
 def test_sinpi_complex():
-    x = np.linspace(-100, 100)
-    x, y = np.meshgrid(x, x)
-    z = x + 1j*y
-    assert_allclose(sc.sinpi(z), scipy_sc_ufuncs._sinpi(z))
+    a, b = np.inf, 100
+    mpmath_allclose(sc.sinpi, mpmath.sinpi,
+                    [ComplexArg(complex(-a, -b), complex(a, b))],
+                    1000, 1e-13)
 
 
 def test_cospi_real():
-    x = np.linspace(-100, 100)
-    assert_allclose(sc.cospi(x), scipy_sc_ufuncs._cospi(x))
+    rtol = 4*np.finfo(float).eps
+    mpmath_allclose(sc.cospi, mpmath.cospi, [Arg()], 1000, rtol)
 
 
 def test_cospi_complex():
-    x = np.linspace(-100, 100)
-    x, y = np.meshgrid(x, x)
-    z = x + 1j*y
-    assert_allclose(sc.cospi(z), scipy_sc_ufuncs._cospi(z))
+    a, b = np.inf, 100
+    mpmath_allclose(sc.cospi, mpmath.cospi,
+                    [ComplexArg(complex(-a, -b), complex(a, b))],
+                    1000, 1e-13)

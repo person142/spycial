@@ -62,7 +62,7 @@ def _loggamma_stirling(z):
     rzz = rz/z
 
     return ((z - 0.5)*np.log(z) - z + HLOG2PI
-            + rz*_cevalpoly(STIRLING_COEFFS, 7, rzz))
+            + rz*_cevalpoly(STIRLING_COEFFS, rzz))
 
 
 @jit('complex128(complex128)', nopython=True)
@@ -98,7 +98,7 @@ def _loggamma_taylor(z):
 
     """
     z = z - 1
-    return z*_cevalpoly(TAYLOR_COEFFS, 22, z)
+    return z*_cevalpoly(TAYLOR_COEFFS, z)
 
 
 @jit(['complex128(complex128)'], nopython=True)

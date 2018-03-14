@@ -2,65 +2,34 @@ import numpy as np
 from numba import njit, generated_jit, vectorize, types
 
 
-eps = np.finfo('float64').eps
-
-
 @njit('float64(float64)')
 def _dsinpi(x):
     """Compute sin(pi*x) for real arguments."""
-    p = np.ceil(x)
-    hp = p/2
+    s = 1.0
+    if x < 0.0:
+        x = -x
+        s = -1.0
 
-    # Make p the even integer closest to x
-    if hp != np.ceil(hp):
-        p -= 1
-    # x is in (-1, 1]
-    x -= p
-    # Reflect x in (0.5, 1] to [0, 0.5).
-    if x > 0.5:
-        x = 1 - x
-    # Reflect x in (-1, -0.5) to (-0.5, 0)
-    if x < -0.5:
-        x = -1 - x
-    return np.sin(np.pi*x)
-
-
-@njit('float64(float64)')
-def _dcospi_taylor(x):
-    """Taylor series for cos(pi*x) around x = 0.5. Since the root is
-    exactly representable in double precision we get gains over just
-    using cos(z) here.
-
-    """
-    x = np.pi*(x - 0.5)
-    xx = x*x
-    term = -x
-    res = term
-    for n in range(1, 20):
-        term *= -xx/((2*n + 1)*(2*n))
-        res += term
-        if abs(term) <= eps*abs(res):
-            break
-    return res
+    r = np.mod(x, 2.0)
+    if r < 0.5:
+        return s*np.sin(np.pi*r)
+    elif r > 1.5:
+        return s*np.sin(np.pi*(r - 2.0))
+    else:
+        return -s*np.sin(np.pi*(r - 1.0))
 
 
 @njit('float64(float64)')
 def _dcospi(x):
     """Compute cos(pi*x) for real arguments."""
-    p = np.ceil(x)
-    hp = p/2
+    if x < 0.0:
+        x = -x
 
-    # Make p the even integer closest to x
-    if hp != np.ceil(hp):
-        p -= 1
-    # x is in (-1, 1].
-    x -= p
-    if abs(x - 0.5) < 0.2:
-        return _dcospi_taylor(x)
-    elif abs(x + 0.5) < 0.2:
-        return _dcospi_taylor(-x)
+    r = np.mod(x, 2.0)
+    if r < 1.0:
+        return -np.sin(np.pi*(r - 0.5))
     else:
-        return np.cos(np.pi*x)
+        return np.sin(np.pi*(r - 1.5))
 
 
 @njit('complex128(complex128)')

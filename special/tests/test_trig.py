@@ -18,7 +18,7 @@ def test_sinpi_complex():
 
 
 def test_cospi_real():
-    rtol = 4*np.finfo(float).eps
+    rtol = np.finfo(float).eps
     mpmath_allclose(sc.cospi, mpmath.cospi, [Arg()], 1000, rtol)
 
 

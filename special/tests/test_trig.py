@@ -11,10 +11,8 @@ def test_sinpi_real():
 
 
 def test_sinpi_complex():
-    a, b = np.inf, 100
-    mpmath_allclose(sc.sinpi, mpmath.sinpi,
-                    [ComplexArg(complex(-a, -b), complex(a, b))],
-                    1000, 1e-13)
+    rtol = 16*np.finfo(float).eps
+    mpmath_allclose(sc.sinpi, mpmath.sinpi, [ComplexArg()], 1000, rtol)
 
 
 def test_cospi_real():
@@ -23,7 +21,5 @@ def test_cospi_real():
 
 
 def test_cospi_complex():
-    a, b = np.inf, 100
-    mpmath_allclose(sc.cospi, mpmath.cospi,
-                    [ComplexArg(complex(-a, -b), complex(a, b))],
-                    1000, 1e-13)
+    rtol = 16*np.finfo(float).eps
+    mpmath_allclose(sc.cospi, mpmath.cospi, [ComplexArg()], 1000, rtol)

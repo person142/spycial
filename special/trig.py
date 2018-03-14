@@ -1,6 +1,10 @@
 import numpy as np
 from numba import njit, generated_jit, vectorize, types
 
+# Largest double-precision input to cosh that doesn't overflow. Note
+# that sinh overflows when cosh does.
+MAXCOSH = 709.89999999999918145
+
 
 @njit('float64(float64)')
 def _dsinpi(x):
@@ -41,7 +45,7 @@ def _csinpi(z):
     sinpix = _dsinpi(x)
     cospix = _dcospi(x)
 
-    if abspiy < 700:
+    if abspiy <= MAXCOSH:
         return np.complex(sinpix*np.cosh(piy), cospix*np.sinh(piy))
 
     # Have to be careful--sinh/cosh could overflow while cos/sin are
@@ -56,13 +60,13 @@ def _csinpi(z):
     if exphpiy == np.inf:
         if sinpix == 0:
             # Preserve the sign of zero
-            coshfac = np.copysign(0.0, sinpix)
+            coshfac = sinpix
         else:
             coshfac = np.copysign(np.inf, sinpix)
         if cospix == 0:
-            sinhfac = np.copysign(0.0, cospix)
+            sinhfac = cospix
         else:
-            sinhfac = np.copysign(np.inf, cospix)
+            sinhfac = np.sign(piy)*np.copysign(np.inf, cospix)
         return np.complex(coshfac, sinhfac)
 
     coshfac = 0.5*sinpix*exphpiy
@@ -79,24 +83,24 @@ def _ccospi(z):
     sinpix = _dsinpi(x)
     cospix = _dcospi(x)
 
-    if abspiy < 700:
+    if abspiy <= MAXCOSH:
         return np.complex(cospix*np.cosh(piy), -sinpix*np.sinh(piy))
 
     # See csinpi(z) for an idea of what's going on here
     exphpiy = np.exp(abspiy/2)
     if exphpiy == np.inf:
-        if sinpix == 0:
-            coshfac = np.copysign(0.0, cospix)
+        if cospix == 0:
+            coshfac = cospix
         else:
             coshfac = np.copysign(np.inf, cospix)
-        if cospix == 0:
-            sinhfac = np.copysign(0.0, sinpix)
+        if sinpix == 0:
+            sinhfac = sinpix
         else:
-            sinhfac = np.copysign(np.inf, sinpix)
+            sinhfac = -np.sign(piy)*np.copysign(np.inf, sinpix)
         return np.complex(coshfac, sinhfac)
 
     coshfac = 0.5*cospix*exphpiy
-    sinhfac = 0.5*sinpix*exphpiy
+    sinhfac = -0.5*sinpix*exphpiy
     return np.complex(coshfac*exphpiy, sinhfac*exphpiy)
 
 

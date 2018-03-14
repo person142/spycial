@@ -17,35 +17,69 @@ def only_some(func, x, y):
         return True
 
 
-def func_allclose(x, f, g, rtol, atol):
-    """Check whether the results of two functions are equal within a
-    desired tolerance. NaNs are considered equal.
-
-    """
-    badpts = []
-    for x0, f0, g0 in np.nditer([x, f, g]):
-        if only_some(np.isnan, f0, g0):
-            badpts.append((x0, f0, g0, np.nan, np.nan))
-        elif (only_some(np.isposinf, np.real(f0), np.real(g0)) or
-              only_some(np.isposinf, np.imag(f0), np.imag(g0)) or
-              only_some(np.isneginf, np.real(f0), np.real(g0)) or
-              only_some(np.isneginf, np.imag(f0), np.imag(g0))):
-            badpts.append((x0, f0, g0, np.inf, np.inf))
+def _func_allclose_real(x, f, g, rtol):
+    badpts = {}
+    for i, (x0, f0, g0) in enumerate(np.nditer([x, f, g])):
+        if np.isnan(f0) and np.isnan(g0):
+            continue
+        elif only_some(np.isnan, f0, g0):
+            badpts[i] = (x0, f0, g0, np.nan)
+        elif np.isposinf(f0) and np.isposinf(g0):
+            continue
+        elif only_some(np.isposinf, f0, g0):
+            badpts[i] = (x0, f0, g0, np.inf)
+        elif np.isneginf(f0) and np.isneginf(g0):
+            continue
+        elif only_some(np.isneginf, f0, g0):
+            badpts[i] = (x0, f0, g0, np.inf)
 
         abserr = np.abs(f0 - g0)
-        if abserr > rtol*np.abs(g0) or abserr > atol:
+        if abserr > rtol*np.abs(g0):
             if g0 == 0.0:
                 relerr = np.inf
             else:
                 relerr = abserr/abs(g0)
-            badpts.append((x0, f0, g0, relerr, abserr))
+            badpts[i] = (x0, f0, g0, relerr)
 
-    if len(badpts) > 0:
-        msg = ["\n"]
-        template = "At {}: {} != {}, relerr = {}, abserr = {}"
-        for x0, f0, g0, relerr, abserr in badpts:
-            msg.append(template.format(x0, f0, g0, relerr, abserr))
-        raise ValueError("\n".join(msg))
+    return badpts
+
+
+def func_allclose(x, f, g, rtol):
+    """Check whether the results of two functions are equal within a
+    desired tolerance. For complex functions each component is
+    considered separately. NaNs are considered equal.
+
+    """
+    msg = []
+    if not np.iscomplexobj(x):
+        badpts = _func_allclose_real(x, f, g, rtol)
+        if len(badpts) == 0:
+            return
+
+        for p in badpts.values():
+            msg.append("At {}: {} != {}, relerr = {}".format(*p))
+        raise ValueError("\n" + "\n".join(msg))
+
+    real_badpts = _func_allclose_real(x, f.real, g.real, rtol)
+    imag_badpts = _func_allclose_real(x, f.imag, g.imag, rtol)
+    indices = set(list(real_badpts.keys()) + list(imag_badpts.keys()))
+    if len(indices) == 0:
+        return
+
+    for i in sorted(list(indices)):
+        p = real_badpts.get(i)
+        q = imag_badpts.get(i)
+        if p is None:
+            msg.append("At {}: {} != {}, imag relerr = {}".format(*q))
+            continue
+        if q is None:
+            msg.append("At {}: {} != {}, real relerr = {}".format(*p))
+            continue
+        line = "At {}: {} != {}, real relerr = {}, imag relerr = {}"
+        x0, f0, g0, rerelerr = p
+        _, _, _, imrelerr = q
+        msg.append(line.format(x0, f0, g0, rerelerr, imrelerr))
+    raise ValueError("\n" + "\n".join(msg))
 
 
 class Arg():
@@ -200,4 +234,4 @@ def mpmath_allclose(func, mpmath_func, argspec, n, rtol, dps=None):
 
     argarr = getargs(argspec, n)
     f, g = func(argarr), vec_mpmath_func(argarr)
-    func_allclose(argarr, f, g, rtol, np.inf)
+    func_allclose(argarr, f, g, rtol)

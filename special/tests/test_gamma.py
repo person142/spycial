@@ -1,3 +1,4 @@
+import numpy as np
 import mpmath
 
 import special as sc
@@ -10,14 +11,21 @@ def test_loggamma():
             return mpmath.loggamma(x)
         except ValueError:
             # Hit a pole
-            return np.nan
+            return complex(np.nan, np.nan)
 
-    b = 1e300
+    b = 1e200
     mpmath_allclose(sc.loggamma, mpmath_loggamma,
                     [ComplexArg(complex(-b, -b), complex(b, b))],
-                     1000, 1e-13)
+                     1000, 5e-12)
 
 
 def test_lgamma():
-    x = np.linspace(-1000, 1000, 1500)
-    assert_allclose(sc.lgamma(x), scipy_sc.gammaln(x))
+    def mpmath_lgamma(x):
+        try:
+            return mpmath.loggamma(x).real
+        except ValueError:
+            # Hit a pole
+            return np.inf
+
+    mpmath_allclose(sc.lgamma, mpmath_lgamma,
+                    [Arg()], 1000, 1e-13)

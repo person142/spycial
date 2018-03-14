@@ -6,7 +6,7 @@ from special.test_utilities import mpmath_allclose, Arg, ComplexArg
 
 
 def test_sinpi_real():
-    rtol = 2*np.finfo(float).eps
+    rtol = np.finfo(float).eps
     mpmath_allclose(sc.sinpi, mpmath.sinpi, [Arg()], 1000, rtol)
 
 

@@ -16,8 +16,9 @@ References
     http://www.boost.org/doc/libs/1_53_0/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_gamma/lgamma.html
 
 """
+import numba
+from numba import njit, generated_jit, vectorize
 import numpy as np
-from numba import njit, vectorize
 
 from .constants import _2π, _2πj, _logπ, _log2π_2, _e
 from .trig import _csinpi, _dsinpi
@@ -119,107 +120,6 @@ LGAMMA_1_5TO2_DENOM = np.array([
 ])
 
 
-@njit('complex128(complex128)')
-def _loggamma_stirling(z):
-    """Stirling series for log-Gamma.
-
-    The coefficients are B[2*n]/(2*n*(2*n - 1)) where B[2*n] is the
-    (2*n)th Bernoulli number. See (1.1) in [1].
-
-    """
-    rz = 1.0/z
-    rzz = rz/z
-
-    return ((z - 0.5)*np.log(z) - z + _log2π_2
-            + rz*_cevalpoly(STIRLING_COEFFS, rzz))
-
-
-@njit('complex128(complex128)')
-def _loggamma_recurrence(z):
-    """Backward recurrence relation.
-
-    See Proposition 2.2 in [1] and the Julia implementation [2].
-
-    """
-    signflips = 0
-    sb = 0
-    shiftprod = z
-
-    z += 1
-    while z.real <= SMALLX:
-        shiftprod *= z
-        nsb = np.signbit(shiftprod.imag)
-        signflips += 1 if nsb != 0 and sb == 0 else 0
-        sb = nsb
-        z += 1
-    return _loggamma_stirling(z) - np.log(shiftprod) - signflips*_2πj
-
-
-@njit('complex128(complex128)')
-def _loggamma_taylor(z):
-    """Taylor series for log-Gamma around z = 1.
-
-    It is
-
-    loggamma(z + 1) = -gamma*z + zeta(2)*z**2/2 - zeta(3)*z**3/3 ...
-
-    where gamma is the Euler-Mascheroni constant.
-
-    """
-    z = z - 1
-    return z*_cevalpoly(TAYLOR_COEFFS, z)
-
-
-@njit('complex128(complex128)')
-def _loggamma(z):
-    """Compute the principal branch of log-Gamma."""
-
-    if np.isnan(z):
-        return np.complex(np.nan, np.nan)
-    elif z.real <= 0 and z == np.floor(z.real):
-        return np.complex(np.nan, np.nan)
-    elif z.real > SMALLX or abs(z.imag) > SMALLY:
-        return _loggamma_stirling(z)
-    elif abs(z - 1) <= TAYLOR_RADIUS:
-        return _loggamma_taylor(z)
-    elif abs(z - 2) <= TAYLOR_RADIUS:
-        # Recurrence relation and the Taylor series around 1
-        return np.log(z - 1) + _loggamma_taylor(z - 1)
-    elif z.real < 0.1:
-        # Reflection formula; see Proposition 3.1 in [1]
-        tmp = np.copysign(_2π, z.imag)*np.floor(0.5*z.real + 0.25)
-        return np.complex(_logπ, tmp) - np.log(_csinpi(z)) - _loggamma(1 - z)
-    elif np.signbit(z.imag) == 0:
-        # z.imag >= 0 but is not -0.0
-        return _loggamma_recurrence(z)
-    else:
-        return _loggamma_recurrence(z.conjugate()).conjugate()
-
-
-@vectorize(['complex128(complex128)'], nopython=True)
-def loggamma(z):
-    r"""Principal branch of the logarithm of the Gamma function.
-
-    Defined to be :math:`\log(\Gamma(x))` for :math:`x > 0` and
-    extended to the complex plane by analytic continuation. The
-    function has a single branch cut on the negative real axis.
-
-    Parameters
-    ----------
-    z : array-like
-        Points in the complex plain
-    out : ndarray, optional
-        Output array for the values of `loggamma` at `z`
-
-    Returns
-    -------
-    ndarray
-        Values of `loggamma` at `z`
-
-    """
-    return _loggamma(z)
-
-
 @njit('float64(float64)')
 def _lgamma_positive(x):
     """Evaluate lgamma for positive arguments.
@@ -278,6 +178,99 @@ def _lgamma(x):
                 - _lgamma_positive(1.0 - x))
 
 
+@njit('complex128(complex128)')
+def _cloggamma_stirling(z):
+    """Stirling series for log-Gamma.
+
+    The coefficients are B[2*n]/(2*n*(2*n - 1)) where B[2*n] is the
+    (2*n)th Bernoulli number. See (1.1) in [1].
+
+    """
+    rz = 1.0/z
+    rzz = rz/z
+
+    return ((z - 0.5)*np.log(z) - z + _log2π_2
+            + rz*_cevalpoly(STIRLING_COEFFS, rzz))
+
+
+@njit('complex128(complex128)')
+def _cloggamma_recurrence(z):
+    """Backward recurrence relation.
+
+    See Proposition 2.2 in [1] and the Julia implementation [2].
+
+    """
+    signflips = 0
+    sb = 0
+    shiftprod = z
+
+    z += 1
+    while z.real <= SMALLX:
+        shiftprod *= z
+        nsb = np.signbit(shiftprod.imag)
+        signflips += 1 if nsb != 0 and sb == 0 else 0
+        sb = nsb
+        z += 1
+    return _cloggamma_stirling(z) - np.log(shiftprod) - signflips*_2πj
+
+
+@njit('complex128(complex128)')
+def _cloggamma_taylor(z):
+    """Taylor series for log-Gamma around z = 1.
+
+    It is
+
+    loggamma(z + 1) = -gamma*z + zeta(2)*z**2/2 - zeta(3)*z**3/3 ...
+
+    where gamma is the Euler-Mascheroni constant.
+
+    """
+    z = z - 1
+    return z*_cevalpoly(TAYLOR_COEFFS, z)
+
+
+@njit('complex128(complex128)')
+def _cloggamma(z):
+    """Compute the principal branch of log-Gamma."""
+
+    if np.isnan(z):
+        return np.complex(np.nan, np.nan)
+    elif z.real <= 0 and z == np.floor(z.real):
+        return np.complex(np.nan, np.nan)
+    elif z.real > SMALLX or abs(z.imag) > SMALLY:
+        return _cloggamma_stirling(z)
+    elif abs(z - 1) <= TAYLOR_RADIUS:
+        return _cloggamma_taylor(z)
+    elif abs(z - 2) <= TAYLOR_RADIUS:
+        # Recurrence relation and the Taylor series around 1
+        return np.log(z - 1) + _cloggamma_taylor(z - 1)
+    elif z.real < 0.1:
+        # Reflection formula; see Proposition 3.1 in [1]
+        tmp = np.copysign(_2π, z.imag)*np.floor(0.5*z.real + 0.25)
+        return (np.complex(_logπ, tmp) - np.log(_csinpi(z))
+                - _cloggamma(1 - z))
+    elif np.signbit(z.imag) == 0:
+        # z.imag >= 0 but is not -0.0
+        return _cloggamma_recurrence(z)
+    else:
+        return _cloggamma_recurrence(z.conjugate()).conjugate()
+
+
+@njit('float64(float64)')
+def _dloggamma(x):
+    if x <= 0.0:
+        return np.nan
+    return _lgamma(x)
+
+
+@generated_jit(nopython=True)
+def _loggamma(a):
+    if a == numba.types.float64:
+        return lambda a: _dloggamma(a)
+    elif a == numba.types.complex128:
+        return lambda a: _cloggamma(a)
+
+
 @vectorize(['float64(float64)'], nopython=True)
 def lgamma(x):
     r"""Logarithm of the absolute value of the Gamma function.
@@ -296,3 +289,28 @@ def lgamma(x):
 
     """
     return _lgamma(x)
+
+
+@vectorize(['float64(float64)', 'complex128(complex128)'],
+           nopython=True)
+def loggamma(z):
+    r"""Principal branch of the logarithm of the Gamma function.
+
+    Defined to be :math:`\log(\Gamma(x))` for :math:`x > 0` and
+    extended to the complex plane by analytic continuation. The
+    function has a single branch cut on the negative real axis.
+
+    Parameters
+    ----------
+    z : array-like
+        Points on the real line or complex plain
+    out : ndarray, optional
+        Output array for the values of `loggamma` at `z`
+
+    Returns
+    -------
+    ndarray
+        Values of `loggamma` at `z`
+
+    """
+    return _loggamma(z)

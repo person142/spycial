@@ -1,9 +1,7 @@
 import numpy as np
 from numba import njit, generated_jit, vectorize, types
 
-# Largest double-precision input to cosh that doesn't overflow. Note
-# that sinh overflows when cosh does.
-MAXCOSH = 709.89999999999918145
+from .constants import _MAXCOSH
 
 
 @njit('float64(float64)')
@@ -45,7 +43,7 @@ def _csinpi(z):
     sinpix = _dsinpi(x)
     cospix = _dcospi(x)
 
-    if abspiy <= MAXCOSH:
+    if abspiy <= _MAXCOSH:
         return np.complex(sinpix*np.cosh(piy), cospix*np.sinh(piy))
 
     # Have to be careful--sinh/cosh could overflow while cos/sin are
@@ -83,7 +81,7 @@ def _ccospi(z):
     sinpix = _dsinpi(x)
     cospix = _dcospi(x)
 
-    if abspiy <= MAXCOSH:
+    if abspiy <= _MAXCOSH:
         return np.complex(cospix*np.cosh(piy), -sinpix*np.sinh(piy))
 
     # See csinpi(z) for an idea of what's going on here

@@ -19,14 +19,12 @@ References
 import numpy as np
 from numba import njit, vectorize
 
+from .constants import _2π, _2πj, _logπ, _log2π_2, _e
 from .trig import _csinpi, _dsinpi
 from .evalpoly import _cevalpoly, _devalrational
 from .lanczos import _lanczos_g, _lanczos_sum_expg_scaled
 
-TWOPI = 6.2831853071795864769252842  # 2*pi
-LOGPI = 1.1447298858494001741434262  # log(pi)
-HLOG2PI = 0.918938533204672742  # log(2*pi)/2
-EULER_E = 2.71828182845904523536  # e
+
 SMALLX = 7
 SMALLY = 7
 TAYLOR_RADIUS = 0.2
@@ -132,7 +130,7 @@ def _loggamma_stirling(z):
     rz = 1.0/z
     rzz = rz/z
 
-    return ((z - 0.5)*np.log(z) - z + HLOG2PI
+    return ((z - 0.5)*np.log(z) - z + _log2π_2
             + rz*_cevalpoly(STIRLING_COEFFS, rzz))
 
 
@@ -154,7 +152,7 @@ def _loggamma_recurrence(z):
         signflips += 1 if nsb != 0 and sb == 0 else 0
         sb = nsb
         z += 1
-    return _loggamma_stirling(z) - np.log(shiftprod) - signflips*TWOPI*1J
+    return _loggamma_stirling(z) - np.log(shiftprod) - signflips*_2πj
 
 
 @njit('complex128(complex128)')
@@ -189,8 +187,8 @@ def _loggamma(z):
         return np.log(z - 1) + _loggamma_taylor(z - 1)
     elif z.real < 0.1:
         # Reflection formula; see Proposition 3.1 in [1]
-        tmp = np.copysign(TWOPI, z.imag)*np.floor(0.5*z.real + 0.25)
-        return np.complex(LOGPI, tmp) - np.log(_csinpi(z)) - _loggamma(1 - z)
+        tmp = np.copysign(_2π, z.imag)*np.floor(0.5*z.real + 0.25)
+        return np.complex(_logπ, tmp) - np.log(_csinpi(z)) - _loggamma(1 - z)
     elif np.signbit(z.imag) == 0:
         # z.imag >= 0 but is not -0.0
         return _loggamma_recurrence(z)
@@ -261,7 +259,7 @@ def _lgamma_positive(x):
         res += dx*(x + 1.0)*(Y + R)
         return res
     else:
-        return ((x - 0.5)*np.log((x + _lanczos_g - 0.5)/EULER_E)
+        return ((x - 0.5)*np.log((x + _lanczos_g - 0.5)/_e)
                 + np.log(_lanczos_sum_expg_scaled(x)))
 
 
@@ -276,7 +274,7 @@ def _lgamma(x):
     elif x > 0:
         return _lgamma_positive(x)
     else:
-        return (LOGPI - np.log(abs(_dsinpi(x)))
+        return (_logπ - np.log(abs(_dsinpi(x)))
                 - _lgamma_positive(1.0 - x))
 
 

@@ -17,31 +17,30 @@ def only_some(func, x, y):
         return True
 
 
-def _func_allclose_real(x, f, g, rtol):
-    badpts = {}
-    for i, (x0, f0, g0) in enumerate(np.nditer([x, f, g])):
-        if np.isnan(f0) and np.isnan(g0):
-            continue
-        elif only_some(np.isnan, f0, g0):
-            badpts[i] = (x0, f0, g0, np.nan)
-        elif np.isposinf(f0) and np.isposinf(g0):
-            continue
-        elif only_some(np.isposinf, f0, g0):
-            badpts[i] = (x0, f0, g0, np.inf)
-        elif np.isneginf(f0) and np.isneginf(g0):
-            continue
-        elif only_some(np.isneginf, f0, g0):
-            badpts[i] = (x0, f0, g0, np.inf)
+def relerr(x, y, rtol):
+    if np.isnan(x) and np.isnan(y):
+        return None
+    elif only_some(np.isnan, x, y):
+        return np.nan
+    elif np.isposinf(x) and np.isposinf(y):
+        return None
+    elif only_some(np.isposinf, x, y):
+        return np.inf
+    elif np.isneginf(x) and np.isneginf(y):
+        return None
+    elif only_some(np.isneginf, x, y):
+        return np.inf
 
-        abserr = np.abs(f0 - g0)
-        if abserr > rtol*np.abs(g0):
-            if g0 == 0.0:
-                relerr = np.inf
-            else:
-                relerr = abserr/abs(g0)
-            badpts[i] = (x0, f0, g0, relerr)
+    abserr = np.abs(x - y)
+    if abserr > rtol*np.abs(y):
+        if y == 0.0:
+            err = np.inf
+        else:
+            err = abserr/np.abs(y)
+    else:
+        err = None
 
-    return badpts
+    return err
 
 
 def func_allclose(x, f, g, rtol):
@@ -51,34 +50,31 @@ def func_allclose(x, f, g, rtol):
 
     """
     msg = []
-    if not np.iscomplexobj(x):
-        badpts = _func_allclose_real(x, f, g, rtol)
-        if len(badpts) == 0:
-            return
+    for (x0, f0, g0) in np.nditer([x, f, g]):
+        if np.iscomplexobj(x):
+            err_r = relerr(f0.real, g0.real, rtol)
+            err_i = relerr(f0.imag, g0.imag, rtol)
+            if err_r is None and err_i is None:
+                continue
+            elif err_r is None:
+                m = "At {}: {} != {}, imag relerr = {}"
+                msg.append(m.format(x0, f0, g0, err_i))
+            elif err_i is None:
+                m = "At {}: {} != {}, real relerr = {}"
+                msg.append(m.format(x0, f0, g0, err_r))
+            else:
+                m = "At {}: {} != {}, real relerr = {}, imag relerr = {}"
+                msg.append(m.format(x0, f0, g0, err_r, err_i))
+        else:
+            err = relerr(f0, g0, rtol)
+            if err is None:
+                continue
+            else:
+                m = "At {}: {} != {}, relerr = {}"
+                msg.append(m.format(x0, f0, g0, err))
 
-        for p in badpts.values():
-            msg.append("At {}: {} != {}, relerr = {}".format(*p))
-        raise ValueError("\n" + "\n".join(msg))
-
-    real_badpts = _func_allclose_real(x, f.real, g.real, rtol)
-    imag_badpts = _func_allclose_real(x, f.imag, g.imag, rtol)
-    indices = set(list(real_badpts.keys()) + list(imag_badpts.keys()))
-    if len(indices) == 0:
+    if len(msg) == 0:
         return
-
-    for i in sorted(list(indices)):
-        p = real_badpts.get(i)
-        q = imag_badpts.get(i)
-        if p is None:
-            msg.append("At {}: {} != {}, imag relerr = {}".format(*q))
-            continue
-        if q is None:
-            msg.append("At {}: {} != {}, real relerr = {}".format(*p))
-            continue
-        line = "At {}: {} != {}, real relerr = {}, imag relerr = {}"
-        x0, f0, g0, rerelerr = p
-        _, _, _, imrelerr = q
-        msg.append(line.format(x0, f0, g0, rerelerr, imrelerr))
     raise ValueError("\n" + "\n".join(msg))
 
 

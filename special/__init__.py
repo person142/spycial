@@ -20,6 +20,15 @@ Trigonometric functions
    sinpi
    cospi
 
+Error function and related functions
+------------------------------------
+
+.. autosummary::
+   :toctree: generated
+
+   erf
+   erfc
+
 """
 # Hack to avoid trapping floating point errors in ufuncs
 from numpy import seterr
@@ -28,3 +37,4 @@ del(seterr)
 
 from .trig import sinpi, cospi
 from .gamma import lgamma, loggamma
+from .erf import erf, erfc

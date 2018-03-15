@@ -53,3 +53,24 @@ class Loggamma():
 
     def time_loggamma(self, name, api):
         self.f(self.x)
+
+
+class Erf():
+    params = [('erf', 'erfc'), ('SciPy', 'Numba')]
+    param_names = ['Function', 'API']
+
+    def setup(self, name, api):
+        self.x = np.linspace(-20, 20, 100)
+        if name == 'erf':
+            if api == 'SciPy':
+                self.f = scipy_sc.erf
+            else:
+                self.f = sc.erf
+        else:
+            if api == 'SciPy':
+                self.f = scipy_sc.erfc
+            else:
+                self.f = sc.erfc
+
+    def time_erf(self, name, api):
+        self.f(self.x)

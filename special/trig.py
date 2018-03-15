@@ -116,6 +116,21 @@ def _sinpi(a):
 
 @vectorize(['float64(float64)', 'complex128(complex128)'], nopython=True)
 def sinpi(x):
+    r"""Compute :math:`\sin(\pi x)`.
+
+    Parameters
+    ----------
+    x : array-like
+        Points on the real line or complex plane
+    out : ndarray, optional
+        Output array for the values of `sinpi` at `x`
+
+    Returns
+    -------
+    ndarray
+        Values of `sinpi` at `x`
+
+    """
     return _sinpi(x)
 
 
@@ -131,4 +146,19 @@ def _cospi(a):
 
 @vectorize(['float64(float64)', 'complex128(complex128)'], nopython=True)
 def cospi(x):
+    r"""Compute :math:`\cos(\pi x)`.
+
+    Parameters
+    ----------
+    x : array-like
+        Points on the real line or complex plane
+    out : ndarray, optional
+        Output array for the values of `cospi` at `x`
+
+    Returns
+    -------
+    ndarray
+        Values of `cospi` at `x`
+
+    """
     return _cospi(x)

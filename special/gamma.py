@@ -200,6 +200,25 @@ def _loggamma(z):
 
 @vectorize(['complex128(complex128)'], nopython=True)
 def loggamma(z):
+    r"""Principal branch of the logarithm of the Gamma function.
+
+    Defined to be :math:`\log(\Gamma(x))` for :math:`x > 0` and
+    extended to the complex plane by analytic continuation. The
+    function has a single branch cut on the negative real axis.
+
+    Parameters
+    ----------
+    z : array-like
+        Points in the complex plain
+    out : ndarray, optional
+        Output array for the values of `loggamma` at `z`
+
+    Returns
+    -------
+    ndarray
+        Values of `loggamma` at `z`
+
+    """
     return _loggamma(z)
 
 
@@ -263,4 +282,19 @@ def _lgamma(x):
 
 @vectorize(['float64(float64)'], nopython=True)
 def lgamma(x):
+    r"""Logarithm of the absolute value of the Gamma function.
+
+    Parameters
+    ----------
+    x : array-like
+        Points on the real line
+    out : ndarray, optional
+        Output array for the values of `lgamma` at `x`
+
+    Returns
+    -------
+    ndarray
+        Values of `lgamma` at `x`
+
+    """
     return _lgamma(x)

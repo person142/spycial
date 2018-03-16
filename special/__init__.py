@@ -11,6 +11,7 @@ Gamma and related functions
    gamma
    lgamma
    loggamma
+   digamma
 
 Trigonometric functions
 -----------------------
@@ -39,4 +40,5 @@ del(seterr)
 from .trig import sinpi, cospi
 from .gamma import gamma
 from .lgamma import lgamma, loggamma
+from .digamma import digamma
 from .erf import erf, erfc

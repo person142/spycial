@@ -8,6 +8,7 @@ Gamma and related functions
 .. autosummary::
    :toctree: generated
 
+   gamma
    lgamma
    loggamma
 
@@ -36,5 +37,6 @@ seterr(all='ignore')
 del(seterr)
 
 from .trig import sinpi, cospi
-from .gamma import lgamma, loggamma
+from .gamma import gamma
+from .lgamma import lgamma, loggamma
 from .erf import erf, erfc

@@ -32,18 +32,24 @@ class Trig():
 
 
 class Loggamma():
-    params = [('lgamma', 'loggamma'), ('SciPy', 'Numba')]
+    params = [('gamma', 'lgamma', 'loggamma'), ('SciPy', 'Numba')]
     param_names = ['Function', 'API']
 
     def setup(self, name, api):
         x = np.linspace(-1000, 1000, 100)
-        if name == 'lgamma':
+        if name == 'gamma':
+            self.x = x
+            if api == 'SciPy':
+                self.f = scipy_sc.gamma
+            else:
+                self.f = sc.gamma
+        elif name == 'lgamma':
             self.x = x
             if api == 'SciPy':
                 self.f = scipy_sc.gammaln
             else:
                 self.f = sc.lgamma
-        elif name == 'loggamma':
+        else:
             x, y = np.meshgrid(x, x)
             self.x = x + 1j*y
             if api == 'SciPy':

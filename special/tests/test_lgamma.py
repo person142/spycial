@@ -37,4 +37,4 @@ def test_lgamma():
             return np.inf
 
     mpmath_allclose(sc.lgamma, mpmath_lgamma,
-                    [Arg()], 1000, 1e-13)
+                    [Arg()], 1000, 5e-14)

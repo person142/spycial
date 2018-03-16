@@ -174,8 +174,8 @@ def _lgamma(x):
     elif x > 0:
         return _lgamma_positive(x)
     else:
-        return (_logπ - np.log(abs(_dsinpi(x)))
-                - _lgamma_positive(1.0 - x))
+        return (_logπ - np.log(np.abs(x*_dsinpi(x)))
+                - _lgamma_positive(-x))
 
 
 @njit('complex128(complex128)')

@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.testing import assert_equal
 import mpmath
 
 import special as sc
@@ -17,3 +18,10 @@ def test_gamma():
     # that.
     mpmath_allclose(sc.gamma, mpmath_gamma,
                     [Arg(-np.inf, 180)], 1000, 1e-14)
+
+
+def test_gamma_int():
+    # These values are hard-coded, so they should be exactly correct
+    x = np.arange(1, 11, dtype=np.float64)
+    y = [float(mpmath.factorial(x0 - 1)) for x0 in x]
+    assert_equal(sc.gamma(x), y)

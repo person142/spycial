@@ -1,5 +1,5 @@
-import numpy as np
 from numba import njit, generated_jit, vectorize, types
+import numpy as np
 
 from .constants import _MAXCOSH
 
@@ -12,7 +12,7 @@ def _dsinpi(x):
         x = -x
         s = -1.0
 
-    r = np.mod(x, 2.0)
+    r = np.fmod(x, 2.0)
     if r < 0.5:
         return s*np.sin(np.pi*r)
     elif r > 1.5:
@@ -27,8 +27,11 @@ def _dcospi(x):
     if x < 0.0:
         x = -x
 
-    r = np.mod(x, 2.0)
-    if r < 1.0:
+    r = np.fmod(x, 2.0)
+    if r == 0.5:
+        # Don't want to return -0.0
+        return 0.0
+    elif r < 1.0:
         return -np.sin(np.pi*(r - 0.5))
     else:
         return np.sin(np.pi*(r - 1.5))

@@ -2,7 +2,8 @@ import numpy as np
 import mpmath
 
 import special as sc
-from special.test_utilities import mpmath_allclose, Arg, ComplexArg
+from special.test_utilities import (func_allclose, mpmath_allclose,
+                                    Arg, ComplexArg)
 
 
 def test_loggamma_complex():
@@ -17,6 +18,16 @@ def test_loggamma_complex():
     mpmath_allclose(sc.loggamma, mpmath_loggamma,
                     [ComplexArg(complex(-b, -b), complex(b, b))],
                      1000, 5e-12)
+
+
+def test_loggamma_recurrence():
+    # Test the identity loggamma(z + 1) = log(z) + loggamma(z)
+    x = np.array([-99.5, -9.5, -0.5, 0.5, 9.5, 99.5])
+    x, y = np.meshgrid(x, x)
+    z = x + 1J*y
+    f = sc.loggamma(z + 1)
+    g = np.log(z) + sc.loggamma(z)
+    func_allclose(z, f, g, 1e-1)
 
 
 def test_loggamma_real():

@@ -3,18 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to special's documentation!
-===================================
+Special
+=======
+
+Special is a collection of special functions implemented in pure
+Python and accelerated with Numba. The goal is to provide
+functionality and speed comparable to ``scipy.special`` while having
+simpler internals by avoiding the two-language problem.
 
 .. toctree::
    :maxdepth: 1
 
    special
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

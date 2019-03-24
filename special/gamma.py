@@ -13,6 +13,7 @@ LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 from numba import njit, vectorize
 import numpy as np
 
+from . import settings
 from .constants import _π, _root_ε, _γ, _MAXEXP
 from .trig import _dsinpi
 from .lanczos import _lanczos_g, _lanczos_sum
@@ -31,7 +32,7 @@ FACTORIALS = np.array([
 ])
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _dgamma(x):
     res = 1.0
 
@@ -66,7 +67,7 @@ def _dgamma(x):
     return res
 
 
-@vectorize(['float64(float64)'], nopython=True)
+@vectorize(['float64(float64)'], nopython=True, cache=settings.CACHE)
 def gamma(x):
     """The Gamma function
 

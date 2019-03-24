@@ -1,10 +1,11 @@
 from numba import njit, generated_jit, vectorize, types
 import numpy as np
 
+from . import settings
 from .constants import _MAXCOSH
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _dsinpi(x):
     """Compute sin(pi*x) for real arguments."""
     s = 1.0
@@ -21,7 +22,7 @@ def _dsinpi(x):
         return -s*np.sin(np.pi*(r - 1.0))
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _dcospi(x):
     """Compute cos(pi*x) for real arguments."""
     if x < 0.0:
@@ -37,7 +38,7 @@ def _dcospi(x):
         return np.sin(np.pi*(r - 1.5))
 
 
-@njit('complex128(complex128)')
+@njit('complex128(complex128)', cache=settings.CACHE)
 def _csinpi(z):
     """Compute sin(pi*z) for complex arguments."""
     x = z.real
@@ -75,7 +76,7 @@ def _csinpi(z):
     return np.complex(coshfac*exphpiy, sinhfac*exphpiy)
 
 
-@njit('complex128(complex128)')
+@njit('complex128(complex128)', cache=settings.CACHE)
 def _ccospi(z):
     """Compute cos(pi*z) for complex arguments."""
     x = z.real
@@ -105,7 +106,7 @@ def _ccospi(z):
     return np.complex(coshfac*exphpiy, sinhfac*exphpiy)
 
 
-@generated_jit(nopython=True)
+@generated_jit(nopython=True, cache=settings.CACHE)
 def _sinpi(a):
     if a == types.float64:
         return lambda a: _dsinpi(a)
@@ -115,7 +116,11 @@ def _sinpi(a):
         raise NotImplementedError
 
 
-@vectorize(['float64(float64)', 'complex128(complex128)'], nopython=True)
+@vectorize(
+    ['float64(float64)', 'complex128(complex128)'],
+    nopython=True,
+    cache=settings.CACHE,
+)
 def sinpi(x):
     r"""Compute :math:`\sin(\pi x)`.
 
@@ -135,7 +140,7 @@ def sinpi(x):
     return _sinpi(x)
 
 
-@generated_jit(nopython=True)
+@generated_jit(nopython=True, cache=settings.CACHE)
 def _cospi(a):
     if a == types.float64:
         return lambda a: _dcospi(a)
@@ -145,7 +150,11 @@ def _cospi(a):
         raise NotImplementedError
 
 
-@vectorize(['float64(float64)', 'complex128(complex128)'], nopython=True)
+@vectorize(
+    ['float64(float64)', 'complex128(complex128)'],
+    nopython=True,
+    cache=settings.CACHE,
+)
 def cospi(x):
     r"""Compute :math:`\cos(\pi x)`.
 

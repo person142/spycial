@@ -20,6 +20,7 @@ import numba
 from numba import njit, generated_jit, vectorize
 import numpy as np
 
+from . import settings
 from .constants import _2π, _2πj, _logπ, _log2π_2, _e
 from .trig import _csinpi, _dsinpi
 from .evalpoly import _cevalpoly, _devalrational
@@ -120,7 +121,7 @@ LGAMMA_1_5TO2_DENOM = np.array([
 ])
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _lgamma_positive(x):
     """Evaluate lgamma for positive arguments.
 
@@ -163,7 +164,7 @@ def _lgamma_positive(x):
                 + np.log(_lanczos_sum_expg_scaled(x)))
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _lgamma(x):
     if x == np.inf or np.isnan(x):
         return x
@@ -178,7 +179,7 @@ def _lgamma(x):
                 - _lgamma_positive(-x))
 
 
-@njit('complex128(complex128)')
+@njit('complex128(complex128)', cache=settings.CACHE)
 def _cloggamma_stirling(z):
     """Stirling series for log-Gamma.
 
@@ -193,7 +194,7 @@ def _cloggamma_stirling(z):
             + rz*_cevalpoly(STIRLING_COEFFS, rzz))
 
 
-@njit('complex128(complex128)')
+@njit('complex128(complex128)', cache=settings.CACHE)
 def _cloggamma_recurrence(z):
     """Backward recurrence relation.
 
@@ -214,7 +215,7 @@ def _cloggamma_recurrence(z):
     return _cloggamma_stirling(z) - np.log(shiftprod) - signflips*_2πj
 
 
-@njit('complex128(complex128)')
+@njit('complex128(complex128)', cache=settings.CACHE)
 def _cloggamma_taylor(z):
     """Taylor series for log-Gamma around z = 1.
 
@@ -229,7 +230,7 @@ def _cloggamma_taylor(z):
     return z*_cevalpoly(TAYLOR_COEFFS, z)
 
 
-@njit('complex128(complex128)')
+@njit('complex128(complex128)', cache=settings.CACHE)
 def _cloggamma(z):
     """Compute the principal branch of log-Gamma."""
 
@@ -256,14 +257,14 @@ def _cloggamma(z):
         return _cloggamma_recurrence(z.conjugate()).conjugate()
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _dloggamma(x):
     if x <= 0.0:
         return np.nan
     return _lgamma(x)
 
 
-@generated_jit(nopython=True)
+@generated_jit(nopython=True, cache=settings.CACHE)
 def _loggamma(a):
     if a == numba.types.float64:
         return lambda a: _dloggamma(a)
@@ -271,7 +272,7 @@ def _loggamma(a):
         return lambda a: _cloggamma(a)
 
 
-@vectorize(['float64(float64)'], nopython=True)
+@vectorize(['float64(float64)'], nopython=True, cache=settings.CACHE)
 def lgamma(x):
     r"""Logarithm of the absolute value of the Gamma function.
 
@@ -291,8 +292,11 @@ def lgamma(x):
     return _lgamma(x)
 
 
-@vectorize(['float64(float64)', 'complex128(complex128)'],
-           nopython=True)
+@vectorize(
+    ['float64(float64)', 'complex128(complex128)'],
+    nopython=True,
+    cache=settings.CACHE,
+)
 def loggamma(z):
     r"""Principal branch of the logarithm of the Gamma function.
 

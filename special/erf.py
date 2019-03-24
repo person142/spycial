@@ -9,6 +9,7 @@ LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 from numba import njit, vectorize
 import numpy as np
 
+from . import settings
 from .evalpoly import _devalpoly
 
 P1 = np.array([
@@ -103,7 +104,7 @@ Q5 = np.array([
 ])
 
 
-@njit('float64(float64, bool_)')
+@njit('float64(float64, bool_)', cache=settings.CACHE)
 def _erf_erfc(x, invert):
     """Compute erf if invert is False and erfc if invert is True."""
     if x < 0:
@@ -173,17 +174,17 @@ def _erf_erfc(x, invert):
     return res
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _erf(x):
     return _erf_erfc(x, False)
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _erfc(x):
     return _erf_erfc(x, True)
 
 
-@vectorize(['float64(float64)'], nopython=True)
+@vectorize(['float64(float64)'], nopython=True, cache=settings.CACHE)
 def erf(x):
     """Error function.
 
@@ -203,7 +204,7 @@ def erf(x):
     return _erf(x)
 
 
-@vectorize(['float64(float64)'], nopython=True)
+@vectorize(['float64(float64)'], nopython=True, cache=settings.CACHE)
 def erfc(x):
     """Complementary error function.
 

@@ -15,6 +15,7 @@ LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 from numba import njit, vectorize
 import numpy as np
 
+from . import settings
 from .constants import _π
 from .evalpoly import _devalpoly
 
@@ -62,7 +63,7 @@ RAT_DENOM = np.array([
 ])
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _digamma_rational(x):
     """Rational approximation on [1, 2] taken from Boost.
 
@@ -90,7 +91,7 @@ def _digamma_rational(x):
     return g*Y + g*r
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _digamma(x):
     res = 0.0
 
@@ -137,7 +138,7 @@ def _digamma(x):
     return res
 
 
-@vectorize(['float64(float64)'], nopython=True)
+@vectorize(['float64(float64)'], nopython=True, cache=settings.CACHE)
 def digamma(x):
     """Digamma function.
 

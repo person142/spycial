@@ -9,6 +9,7 @@ LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 from numba import njit, vectorize
 import numpy as np
 
+from . import settings
 from .evalpoly import _devalpoly
 from .lanczos import _lanczos_g, _lanczos_sum_expg_scaled
 from .gamma import _dgamma
@@ -143,7 +144,7 @@ Q36 = np.array([
 ])
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _zeta_between_1_and_2(sc):
     # sc = 1 - s.
     res = _devalpoly(P2, -sc) / _devalpoly(Q2, -sc)
@@ -151,7 +152,7 @@ def _zeta_between_1_and_2(sc):
     return res
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _zeta_positive_arguments(s):
     if s < 1:
         sc = 1.0 - s
@@ -191,7 +192,7 @@ def _zeta_positive_arguments(s):
         return 1.0
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _zeta_between_negative_1_and_0(s):
     # We have to compute `sc` carefully to avoid loss of
     # precision. Here we are using the identity 1 - (1 + (-s)) = s.
@@ -205,7 +206,7 @@ def _zeta_between_negative_1_and_0(s):
     )
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _zeta_negative_arguments(s):
     s = -s
     base = (s + _lanczos_g + 0.5) / _2πe
@@ -232,7 +233,7 @@ def _zeta_negative_arguments(s):
         return res
 
 
-@njit('float64(float64)')
+@njit('float64(float64)', cache=settings.CACHE)
 def _zeta(s):
     if np.isnan(s):
         return s
@@ -255,7 +256,7 @@ def _zeta(s):
     return _zeta_negative_arguments(s)
 
 
-@vectorize(['float64(float64)'], nopython=True)
+@vectorize(['float64(float64)'], nopython=True, cache=settings.CACHE)
 def zeta(s):
     """Riemann zeta function.
 

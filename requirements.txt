@@ -1,0 +1,7 @@
+numba
+numpy
+scipy
+mpmath
+pytest
+sphinx
+sphinx_rtd_theme

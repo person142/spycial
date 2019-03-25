@@ -5,9 +5,12 @@ import special as sc
 import scipy.special._ufuncs as scipy_sc_ufuncs
 
 
-class Trig():
-    params = [('cospi', 'sinpi'), ('real', 'complex'),
-              ('SciPy', 'Numba')]
+class Trig:
+    params = [
+        ('cospi', 'sinpi'),
+        ('real', 'complex'),
+        ('SciPy', 'Special'),
+    ]
     param_names = ['Function', 'Type', 'API']
 
     def setup(self, f, typ, api):
@@ -31,7 +34,7 @@ class Trig():
         self.f(self.x)
 
 
-class Loggamma():
+class Loggamma:
     params = [('gamma', 'lgamma', 'loggamma'), ('SciPy', 'Numba')]
     param_names = ['Function', 'API']
 
@@ -61,7 +64,7 @@ class Loggamma():
         self.f(self.x)
 
 
-class Erf():
+class Erf:
     params = [('erf', 'erfc'), ('SciPy', 'Numba')]
     param_names = ['Function', 'API']
 
@@ -79,4 +82,19 @@ class Erf():
                 self.f = sc.erfc
 
     def time_erf(self, name, api):
+        self.f(self.x)
+
+
+class Zeta:
+    params = [('zeta',), ('SciPy', 'Numba')]
+    param_names = ['Function', 'API']
+
+    def setup(self, name, api):
+        self.x = np.linspace(0, 56, 200)
+        if api == 'SciPy':
+            self.f = scipy_sc.zeta
+        else:
+            self.f = sc.zeta
+
+    def time_zeta(self, name, api):
         self.f(self.x)

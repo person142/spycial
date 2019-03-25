@@ -31,6 +31,14 @@ Error function and related functions
    erf
    erfc
 
+Riemann zeta function
+---------------------
+
+.. autosummary::
+   :toctree: generated
+
+   zeta
+
 """
 # Hack to avoid trapping floating point errors in ufuncs
 from numpy import seterr

@@ -3,5 +3,6 @@ numpy
 scipy
 mpmath
 pytest
+asv
 sphinx
 sphinx_rtd_theme

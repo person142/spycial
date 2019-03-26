@@ -2,9 +2,9 @@ import numpy as np
 from numpy.testing import assert_allclose
 import mpmath
 
-import special as sc
-from special.test_utilities import mpmath_allclose, Arg
-from special.constants import _ε
+import spycial as sc
+from spycial.test_utilities import mpmath_allclose, Arg
+from spycial.constants import _ε
 
 
 def test_special_cases():

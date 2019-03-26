@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.special as scipy_sc
 
-import special as sc
+import spycial as sc
 import scipy.special._ufuncs as scipy_sc_ufuncs
 
 

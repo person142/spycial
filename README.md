@@ -1,6 +1,6 @@
-# special
+# Spycial
 
-Special is a collection of special functions written in pure Python
+Spycial is a collection of special functions written in pure Python
 and accelerated by Numba. The goals are to
 
 - make functionality comparable to SciPy's special module accessible

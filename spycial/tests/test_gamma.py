@@ -2,8 +2,8 @@ import numpy as np
 from numpy.testing import assert_equal
 import mpmath
 
-import special as sc
-from special.test_utilities import Arg, mpmath_allclose
+import spycial as sc
+from spycial.test_utilities import Arg, mpmath_allclose
 
 
 def test_gamma():

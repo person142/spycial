@@ -1,8 +1,8 @@
 import numpy as np
 import mpmath
 
-import special as sc
-from special.test_utilities import mpmath_allclose, Arg, ComplexArg
+import spycial as sc
+from spycial.test_utilities import mpmath_allclose, Arg, ComplexArg
 
 
 def test_sinpi_real():

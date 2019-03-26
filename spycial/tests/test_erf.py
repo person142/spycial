@@ -2,8 +2,8 @@ import numpy as np
 from numpy.testing import assert_equal
 import mpmath
 
-import special as sc
-from special.test_utilities import mpmath_allclose, Arg
+import spycial as sc
+from spycial.test_utilities import mpmath_allclose, Arg
 
 
 def test_erf():

@@ -21,7 +21,7 @@ import glob
 
 # -- Project information -----------------------------------------------------
 
-project = 'special'
+project = 'spycial'
 copyright = '2018, Josh Wilson'
 author = 'Josh Wilson'
 
@@ -136,7 +136,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'special.tex', 'special Documentation',
+    (master_doc, 'spycial.tex', 'Spycial Documentation',
      'Josh Wilson', 'manual'),
 ]
 
@@ -146,7 +146,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'special', 'special Documentation',
+    (master_doc, 'spycial', 'Spycial Documentation',
      [author], 1)
 ]
 
@@ -157,8 +157,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'special', 'special Documentation',
-     author, 'special', 'One line description of project.',
+    (master_doc, 'spycial', 'Spycial Documentation',
+     author, 'spycial', 'One line description of project.',
      'Miscellaneous'),
 ]
 

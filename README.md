@@ -1,5 +1,7 @@
 # Spycial
 
+[![CircleCI](https://circleci.com/gh/person142/spycial.svg?style=shield)](https://circleci.com/gh/person142/spycial) [![Documentation Status](https://readthedocs.org/projects/spycial/badge/?version=latest)](https://spycial.readthedocs.io/en/latest/?badge=latest)
+
 Spycial is a collection of special functions written in pure Python
 and accelerated by Numba. The goals are to
 

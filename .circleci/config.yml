@@ -1,0 +1,35 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6.1
+
+    working_directory: ~/spycial
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - requirements-{{ checksum "requirements.txt" }}
+            # Fallback to using the latest cache if no exact match is found
+            - requirements-
+
+      - run:
+          name: install dependencies
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+            pip install .
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: requirements-{{ checksum "requirements.txt" }}
+
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            pytest

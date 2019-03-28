@@ -43,7 +43,7 @@ Riemann zeta function
 # Hack to avoid trapping floating point errors in ufuncs
 from numpy import seterr
 seterr(all='ignore')
-del(seterr)
+del seterr
 
 from .trig import sinpi, cospi
 from .gamma import gamma

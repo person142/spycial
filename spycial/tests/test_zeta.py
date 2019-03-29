@@ -17,6 +17,13 @@ def test_special_cases():
     assert np.isnan(sc.zeta(-np.inf))
 
 
+def test_zeta_even_integers():
+    assert_allclose(sc.zeta(2), np.pi**2 / 6, rtol=_ε)
+    assert_allclose(sc.zeta(4), np.pi**4 / 90, rtol=_ε)
+    # This value was computed using Wolfram Alpha
+    assert sc.zeta(54) == 1.00000000000000005551
+
+
 def test_zeta_small_arguments():
     mpmath_allclose(
         sc.zeta,

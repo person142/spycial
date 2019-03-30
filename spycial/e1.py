@@ -83,7 +83,14 @@ def _e1(x):
 
 @vectorize(['float64(float64)'], nopython=True, cache=settings.CACHE)
 def e1(x):
-    r"""Exponential integral :math:`E_1(x)`
+    r"""Exponential integral :math:`E_1(x)`.
+
+    For real :math:`x > 0` the exponential integral can be defined as
+    [1]_
+
+    .. math::
+
+        E_1(x) = \int_x^\infty \frac{e^{-t}}{t} dt.
 
     Parameters
     ----------
@@ -96,6 +103,12 @@ def e1(x):
     -------
     ndarray
         Values of `e1` at `x`
+
+    References
+    ----------
+
+    .. [1] Digital Library of Mathematical Functions, 6.2.1
+           https://dlmf.nist.gov/6.2#E1
 
     """
     return _e1(x)

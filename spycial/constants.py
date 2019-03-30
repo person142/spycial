@@ -28,4 +28,7 @@ _MAXEXP = 709.7827128933839731
 
 # Largest float64 input to cosh that doesn't overflow. Note that sinh
 # overflows when cosh does.
-_MAXCOSH = 709.89999999999918145
+_MAXCOSH = 710.47586007394329499
+
+# Smallest float64 before exp underflows
+MINEXP = -745.13321910194110842

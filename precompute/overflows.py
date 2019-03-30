@@ -9,7 +9,6 @@ np.seterr(all='ignore')
 
 def find_overflow(f, a, b):
     # Start with a binary search
-    a, b = 709.7, 709.9
     while True:
         mid = 0.5*(a + b)
         if f(mid) == np.inf:

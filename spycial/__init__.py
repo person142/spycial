@@ -31,6 +31,14 @@ Error function and related functions
    erf
    erfc
 
+Exponential integral and related functions
+------------------------------------------
+
+.. autosummary::
+   :toctree: generated
+
+   e1
+
 Riemann zeta function
 ---------------------
 
@@ -51,3 +59,4 @@ from .lgamma import lgamma, loggamma
 from .digamma import digamma
 from .erf import erf, erfc
 from .zeta import zeta
+from .e1 import e1

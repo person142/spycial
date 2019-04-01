@@ -100,16 +100,23 @@ class Zeta:
         self.f(self.x)
 
 
-class E1:
-    params = [('e1',), ('SciPy', 'Spycial')]
+class ExponentialIntegrals:
+    params = [('e1', 'ei'), ('SciPy', 'Spycial')]
     param_names = ['Function', 'Library']
 
     def setup(self, name, library):
-        self.x = np.linspace(1e-8, 750, 100)
-        if library == 'SciPy':
-            self.f = scipy_sc.exp1
+        if name == 'e1':
+            self.x = np.linspace(1e-8, 750, 100)
+            if library == 'SciPy':
+                self.f = scipy_sc.exp1
+            else:
+                self.f = sc.e1
         else:
-            self.f = sc.e1
+            self.x = np.linspace(-700, 700, 200)
+            if library == 'SciPy':
+                self.f = scipy_sc.expi
+            else:
+                self.f = sc.ei
 
-    def time_e1(self, name, library):
+    def time_exponential_integrals(self, name, library):
         self.f(self.x)

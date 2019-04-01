@@ -104,6 +104,10 @@ def e1(x):
     ndarray
         Values of `e1` at `x`
 
+    See Also
+    --------
+    ei: Exponential integral :math:`Ei`
+
     References
     ----------
 

@@ -38,6 +38,7 @@ Exponential integral and related functions
    :toctree: generated
 
    e1
+   ei
 
 Riemann zeta function
 ---------------------
@@ -60,3 +61,4 @@ from .digamma import digamma
 from .erf import erf, erfc
 from .zeta import zeta
 from .e1 import e1
+from .ei import ei

@@ -1,5 +1,6 @@
-"""Utilties to simplify testing from Mpmath. They were adapted from
-SciPy.
+"""Utilties to simplify testing with Mpmath.
+
+The utilities were adapted from SciPy.
 
 """
 import numpy as np
@@ -44,9 +45,10 @@ def relerr(x, y, rtol):
 
 
 def func_allclose(x, f, g, rtol):
-    """Check whether the results of two functions are equal within a
-    desired tolerance. For complex functions each component is
-    considered separately. NaNs are considered equal.
+    """Check whether two functions are equal within a desired tolerance.
+
+    For complex functions each component is considered
+    separately. NaNs are considered equal.
 
     """
     msg = []
@@ -78,9 +80,8 @@ def func_allclose(x, f, g, rtol):
     raise ValueError("\n" + "\n".join(msg))
 
 
-class Arg():
+class Arg:
     """Generate a set of test points on the real axis."""
-
     def __init__(self, a=-np.inf, b=np.inf, inclusive_a=True, inclusive_b=True):
         if a > b:
             raise ValueError("a should be less than or equal to b")
@@ -186,9 +187,8 @@ class Arg():
         return pts
 
 
-class ComplexArg():
+class ComplexArg:
     """Generate a set of test points in the complex plane."""
-
     def __init__(self, a=complex(-np.inf, -np.inf), b=complex(np.inf, np.inf)):
         self.real = Arg(a.real, b.real)
         self.imag = Arg(a.imag, b.imag)

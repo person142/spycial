@@ -85,6 +85,21 @@ class Erf:
         self.f(self.x)
 
 
+class Erfinv:
+    params = [('erfinv',), ('SciPy', 'Spycial')]
+    param_names = ['Function', 'Library']
+
+    def setup(self, name, library):
+        self.x = np.linspace(-1, 1, 500)
+        if library == 'SciPy':
+            self.f = scipy_sc.erfinv
+        else:
+            self.f = sc.erfinv
+
+    def time_erfinv(self, name, library):
+        self.f(self.x)
+
+
 class Zeta:
     params = [('zeta',), ('SciPy', 'Spycial')]
     param_names = ['Function', 'Library']

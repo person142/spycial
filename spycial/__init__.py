@@ -30,6 +30,7 @@ Error function and related functions
 
    erf
    erfc
+   erfinv
 
 Exponential integral and related functions
 ------------------------------------------
@@ -59,6 +60,7 @@ from .gamma import gamma
 from .lgamma import lgamma, loggamma
 from .digamma import digamma
 from .erf import erf, erfc
+from .erfinv import erfinv
 from .zeta import zeta
 from .e1 import e1
 from .ei import ei

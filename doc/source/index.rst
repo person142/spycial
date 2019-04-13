@@ -15,3 +15,10 @@ simpler internals by avoiding the two-language problem.
    :maxdepth: 1
 
    spycial
+
+Changelog
+---------
+
+.. toctree::
+
+   release/0.2-notes

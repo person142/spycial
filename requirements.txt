@@ -7,3 +7,4 @@ asv
 sphinx
 sphinx_rtd_theme
 twine
+setuptools

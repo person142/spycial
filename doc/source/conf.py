@@ -22,7 +22,7 @@ import glob
 # -- Project information -----------------------------------------------------
 
 project = 'spycial'
-copyright = '2018, Josh Wilson'
+copyright = '2018-2019, Josh Wilson'
 author = 'Josh Wilson'
 
 # The short X.Y version

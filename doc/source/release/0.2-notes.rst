@@ -1,0 +1,6 @@
+Spycial 0.2 Release Notes
+=========================
+
+Version 0.2 adds the exponential integrals :math:`Ei` and :math:`E_1`
+as well as the inverse error function :math:`\text{erf}^{-1}` and the
+inverse complementary error function :math:`\text{erfc}^{-1}`.

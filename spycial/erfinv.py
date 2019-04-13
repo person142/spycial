@@ -199,7 +199,9 @@ def _erf_erfc_inv(p, q):
 
 @njit('float64(float64)', cache=settings.CACHE)
 def _erfinv(x):
-    if x < -1 or x > 1:
+    if np.isnan(x):
+        return x
+    elif x < -1 or x > 1:
         return np.nan
     elif x == 1:
         return np.inf
@@ -207,8 +209,6 @@ def _erfinv(x):
         return -np.inf
     elif x == 0:
         return 0
-    elif np.isnan(x):
-        return x
 
     if x < 0:
         p = -x
@@ -221,6 +221,29 @@ def _erfinv(x):
     return s * _erf_erfc_inv(p, q)
 
 
+@njit('float64(float64)', cache=settings.CACHE)
+def _erfcinv(x):
+    if np.isnan(x):
+        return x
+    elif x < 0 or x > 2:
+        return np.nan
+    elif x == 0:
+        return np.inf
+    elif x == 2:
+        return -np.inf
+
+    if x > 1:
+        q = 2 - x
+        p = 1 - q
+        s = -1
+    else:
+        p = 1 - x
+        q = x
+        s = 1
+
+    return s * _erf_erfc_inv(p, q)
+
+
 @vectorize(['float64(float64)'], nopython=True, cache=settings.CACHE)
 def erfinv(x):
     """Inverse error function.
@@ -230,12 +253,32 @@ def erfinv(x):
     x : array-like
         Points on the real line
     out : ndarray, optional
-        Output array for the values of `erf_inv` at `x`
+        Output array for the values of `erfinv` at `x`
 
     Returns
     -------
     ndarray
-        Values of `erf_inv` at `x`
+        Values of `erfinv` at `x`
 
     """
     return _erfinv(x)
+
+
+@vectorize(['float64(float64)'], nopython=True, cache=settings.CACHE)
+def erfcinv(x):
+    """Inverse complementary error function.
+
+    Parameters
+    ----------
+    x : array-like
+        Points on the real line
+    out : ndarray, optional
+        Output array for the values of `erfcinv` at `x`
+
+    Returns
+    -------
+    ndarray
+        Values of `erfcinv` at `x`
+
+    """
+    return _erfcinv(x)

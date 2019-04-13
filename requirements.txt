@@ -2,6 +2,7 @@ numba
 numpy
 scipy
 mpmath
+gmpy
 pytest
 asv
 sphinx

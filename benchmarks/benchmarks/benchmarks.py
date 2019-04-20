@@ -135,3 +135,37 @@ class ExponentialIntegrals:
 
     def time_exponential_integrals(self, name, library):
         self.f(self.x)
+
+
+class GeneralizedExponentialIntegral:
+    params = [
+        ('small_x_and_n', 'large_n', 'large_x'),
+        ('SciPy', 'Spycial'),
+    ]
+    param_names = ['Parameter Region', 'Library']
+
+    def setup(self, parameter_range, library):
+        if library == 'SciPy':
+            self.f = scipy_sc.expn
+            # Use int64 to make sure we aren't spending time casting
+            # the input type.
+            dtype = np.int64
+        else:
+            self.f = sc.en
+            dtype = np.uint64
+
+        if parameter_range == 'small_x_and_n':
+            # Start at n = 2 to exclude the special-cased n = 0 and
+            # n = 1 cases.
+            n = np.arange(2, 50, dtype=dtype)
+            x = np.linspace(0, 1, 200)
+        elif parameter_range == 'large_n':
+            n = np.arange(51, 100, dtype=dtype)
+            x = np.linspace(0, 500, 200)
+        else:
+            n = np.arange(2, 50, dtype=dtype)
+            x = np.linspace(1, 500, 200)
+        self.args = np.meshgrid(n, x)
+
+    def time_generalized_exponential_integral(self, name, library):
+        self.f(*self.args)

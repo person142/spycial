@@ -41,6 +41,7 @@ Exponential integral and related functions
 
    e1
    ei
+   en
 
 Riemann zeta function
 ---------------------
@@ -63,5 +64,6 @@ from .digamma import digamma
 from .erf import erf, erfc
 from .erfinv import erfinv, erfcinv
 from .zeta import zeta
-from .e1 import e1
 from .ei import ei
+from .e1 import e1
+from .en import en

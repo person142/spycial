@@ -52,32 +52,36 @@ def func_allclose(x, f, g, rtol):
 
     """
     msg = []
-    for (x0, f0, g0) in np.nditer([x, f, g]):
+    for f0, g0, *x0 in np.nditer([f, g, *x]):
         if np.iscomplexobj(x):
             err_r = relerr(f0.real, g0.real, rtol)
             err_i = relerr(f0.imag, g0.imag, rtol)
             if err_r is None and err_i is None:
                 continue
             elif err_r is None:
-                m = "At {}: {} != {}, imag relerr = {}"
+                m = 'At {}: {} != {}, imag relerr = {}'
                 msg.append(m.format(x0, f0, g0, err_i))
             elif err_i is None:
-                m = "At {}: {} != {}, real relerr = {}"
+                m = 'At {}: {} != {}, real relerr = {}'
                 msg.append(m.format(x0, f0, g0, err_r))
             else:
-                m = "At {}: {} != {}, real relerr = {}, imag relerr = {}"
+                m = 'At {}: {} != {}, real relerr = {}, imag relerr = {}'
                 msg.append(m.format(x0, f0, g0, err_r, err_i))
         else:
             err = relerr(f0, g0, rtol)
             if err is None:
                 continue
             else:
-                m = "At {}: {} != {}, relerr = {}"
-                msg.append(m.format(x0, f0, g0, err))
+                if len(x0) == 1:
+                    str_x0 = str(x0)
+                else:
+                    str_x0 = '({})'.format(', '.join([str(c) for c in x0]))
+                m = 'At {}: {} != {}, relerr = {}'
+                msg.append(m.format(str_x0, f0, g0, err))
 
     if len(msg) == 0:
         return
-    raise ValueError("\n" + "\n".join(msg))
+    raise ValueError('\n' + '\n'.join(msg))
 
 
 class Arg:
@@ -202,6 +206,25 @@ class ComplexArg:
         return z.flatten()
 
 
+class UIntArg:
+    """Generate a set of positive integer test points."""
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def values(self, n):
+        if n > self.b - self.a + 1:
+            raise ValueError(
+                'More points requested than exist between a and b',
+            )
+        spacing = np.floor((self.b - self.a) / n)
+        pts = []
+        for i in range(n - 1):
+            pts.append(self.a + i * spacing)
+        pts.append(self.b)
+        return np.array(pts, dtype=np.uint64)
+
+
 def getargs(argspec, n):
     nargs = len(argspec)
     ms = np.asarray([1.5 if isinstance(spec, ComplexArg) else 1.0 for spec in argspec])
@@ -210,24 +233,24 @@ def getargs(argspec, n):
     args = []
     for spec, m in zip(argspec, ms):
         args.append(spec.values(m))
-    args = np.meshgrid(args)
+    args = np.meshgrid(*args)
     return args
 
 
 def mpmath_allclose(func, mpmath_func, argspec, n, rtol, dps=None):
     if dps is None:
         dps = 20
-    if any([isinstance(arg, ComplexArg) for arg in argspec]):
-        cast = lambda x: complex(x)
+    if any(isinstance(arg, ComplexArg) for arg in argspec):
+        cast = complex
     else:
-        cast = lambda x: float(x)
+        cast = float
 
-    def vec_mpmath_func(x):
+    def vec_mpmath_func(*args):
         with mpmath.workdps(dps):
-            return cast(mpmath_func(x))
+            return cast(mpmath_func(*args))
 
     vec_mpmath_func = np.vectorize(vec_mpmath_func)
 
     argarr = getargs(argspec, n)
-    f, g = func(argarr), vec_mpmath_func(argarr)
+    f, g = func(*argarr), vec_mpmath_func(*argarr)
     func_allclose(argarr, f, g, rtol)

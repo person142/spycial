@@ -107,10 +107,10 @@ def e1(x):
     See Also
     --------
     ei: Exponential integral :math:`Ei`
+    en: Generalization of :math:`E_1`
 
     References
     ----------
-
     .. [1] Digital Library of Mathematical Functions, 6.2.1
            https://dlmf.nist.gov/6.2#E1
 

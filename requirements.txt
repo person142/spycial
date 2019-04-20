@@ -4,6 +4,7 @@ scipy
 mpmath
 pytest
 asv
+virtualenv
 sphinx
 sphinx_rtd_theme
 twine

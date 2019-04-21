@@ -1,6 +1,7 @@
 """Exponential integral `E_n`.
 
-The implementation is ported from SciPy.
+The implementation was original ported from SciPy and was then
+improved for the the region with `n <= 50` and `0.5 < x < 1.5`.
 
 """
 from numba import njit, vectorize

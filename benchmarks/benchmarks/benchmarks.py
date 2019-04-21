@@ -139,7 +139,13 @@ class ExponentialIntegrals:
 
 class GeneralizedExponentialIntegral:
     params = [
-        ('small_x_and_n', 'large_n', 'large_x'),
+        (
+            'small_x_and_n_less_than_51',
+            'intermediate_x_and_n_between_2_and_15',
+            'intermediate_x_and_n_between_16_and_50',
+            'large_n',
+            'large_x',
+        ),
         ('SciPy', 'Spycial'),
     ]
     param_names = ['Parameter Region', 'Library']
@@ -154,11 +160,17 @@ class GeneralizedExponentialIntegral:
             self.f = sc.en
             dtype = np.uint64
 
-        if parameter_range == 'small_x_and_n':
+        if parameter_range == 'small_x_and_n_less_than_51':
             # Start at n = 2 to exclude the special-cased n = 0 and
             # n = 1 cases.
-            n = np.arange(2, 50, dtype=dtype)
+            n = np.arange(2, 51, dtype=dtype)
             x = np.linspace(0, 1, 200)
+        elif parameter_range == 'intermediate_x_and_n_between_2_and_15':
+            n = np.arange(2, 16, dtype=dtype)
+            x = np.linspace(0.5, 1.5, 200)
+        elif parameter_range == 'intermediate_x_and_n_between_16_and_50':
+            n = np.arange(16, 51, dtype=dtype)
+            x = np.linspace(0.5, 1.5, 200)
         elif parameter_range == 'large_n':
             n = np.arange(51, 100, dtype=dtype)
             x = np.linspace(0, 500, 200)

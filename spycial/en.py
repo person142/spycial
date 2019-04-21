@@ -9,6 +9,7 @@ import numpy as np
 from . import settings
 from .constants import _ε, MINEXP
 from .evalpoly import _devalpoly
+from .fma import _fma
 from .e1 import _e1
 from .gamma import _dgamma
 
@@ -177,6 +178,62 @@ PSI = np.array([
 ])
 
 
+# The nth value is E_n(1)
+EN_AT_1 = np.array([
+    0.3678794411714423216,
+    0.21938393439552027368,
+    0.14849550677592204792,
+    0.10969196719776013684,
+    0.086062491324560728252,
+    0.070454237461720398336,
+    0.059485040741944384652,
+    0.051399066738249656157,
+    0.045211482061884666491,
+    0.040333494888694706888,
+    0.036393994031416401634,
+    0.033148544714002591996,
+    0.030430081496130884509,
+    0.028120779972942619757,
+    0.026135281630653823218,
+    0.024410297110056321313,
+    0.022897942937425733352,
+    0.021561343639626036765,
+    0.020371652795989193225,
+    0.019305988243080729354,
+    0.018345971206755873276,
+    0.017476673498234322416,
+    0.01668584607967657139,
+    0.015963345231443897737,
+    0.015300699823478192342,
+    0.014690780889498505386,
+    0.014127546411277752648,
+    0.013605842106160175729,
+    0.013121244409825264662,
+    0.012669935598629180605,
+    0.012248603640441832448,
+    0.011854361251033349638,
+    0.011484679997432547482,
+    0.011137336286687805441,
+    0.010810366814689530793,
+    0.010502031598728023259,
+    0.010210783130648979952,
+    0.009935240501133148379,
+    0.0096741675856840317086,
+    0.0094264545680462707865,
+    0.0091911022205998987387,
+    0.0089672084737710605714,
+    0.0087539568950651527079,
+    0.0085506067684851706878,
+    0.0083564845209990035095,
+    0.008170976287510075411,
+    0.0079935214418651610263,
+    0.0078236069506429817515,
+    0.0076607624302297731882,
+    0.0075045558071085947585,
+    0.0073545894972313005477,
+])
+
+
 @njit('float64(uint64, float64)', cache=settings.CACHE)
 def _en_continued_fraction(n, x):
     """Continued fraction from DLMF 8.19.17."""
@@ -186,7 +243,7 @@ def _en_continued_fraction(n, x):
     Bkm2 = x
     Bkm1 = x + n
     xkm1 = Akm1 / Bkm1
-    for k in range(2, 100):
+    for k in range(2, 200):
         if k % 2 == 0:
             ak = 0.5 * k
             bk = x
@@ -206,6 +263,39 @@ def _en_continued_fraction(n, x):
             xkm1 = xk
 
     return np.exp(-x) * xk
+
+
+@njit('float64(uint64, float64)', cache=settings.CACHE)
+def _en_finite_series(n, x):
+    """DLMF 8.19.7."""
+    negx = -x
+    s = 1 + negx
+    for k in range(2, n - 1):
+        s = _fma(negx / k, s, 1)
+
+    return (
+        negx**(n - 1) * _e1(x) / _dgamma(n)
+        + np.exp(negx) * s / (n - 1)
+    )
+
+
+@njit('float64(uint64, float64)', cache=settings.CACHE)
+def _en_taylor_series_at_1(n, x):
+    """Taylor series for `E_n` at `x = 1`.
+
+    The coefficients are computed using DLMF 8.19.13.
+
+    """
+    xm1 = x - 1.0
+    fac = 1.0
+    result = EN_AT_1[n]
+    for k in range(1, 16):
+        fac *= -xm1 / k
+        term = EN_AT_1[n - k] * fac
+        result += term
+        if abs(term) < _ε * abs(result):
+            break
+    return result
 
 
 @njit('float64(uint64, float64)', cache=settings.CACHE)
@@ -276,6 +366,13 @@ def _en(n, x):
         return 0
     elif n > 50:
         return _en_asymptotic_series_large_n(n, x)
+    elif 0.5 < x < 1.5:
+        if n == 2:
+            return np.exp(-x) - x * _e1(x)
+        elif n < 15:
+            return _en_finite_series(n, x)
+        else:
+            return _en_taylor_series_at_1(n, x)
     elif x > 1:
         return _en_continued_fraction(n, x)
     else:

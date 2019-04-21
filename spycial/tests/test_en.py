@@ -48,11 +48,11 @@ def test_n_equals_1():
     )
 
 
-def test_small_x_and_n():
+def test_x_less_than_one_half_and_n_less_than_50():
     mpmath_allclose(
         sc.en,
         mpmath.expint,
-        [UIntArg(2, 50), Arg(0, 1, inclusive_a=False)],
+        [UIntArg(2, 50), Arg(0, 0.5, inclusive_a=False)],
         400,
         rtol=4*_ε,
     )
@@ -71,13 +71,33 @@ def test_large_n():
     )
 
 
+def test_intermediate_x_and_n_less_than_16():
+    mpmath_allclose(
+        sc.en,
+        mpmath.expint,
+        [UIntArg(0, 15), Arg(0.5, 1.5, inclusive_a=False, inclusive_b=False)],
+        100,
+        rtol=4*_ε,
+    )
+
+
+def test_intermediate_x_and_n_between_16_and_50():
+    mpmath_allclose(
+        sc.en,
+        mpmath.expint,
+        [UIntArg(16, 50), Arg(0.5, 1.5, inclusive_a=False, inclusive_b=False)],
+        100,
+        rtol=4*_ε,
+    )
+
+
 def test_large_x():
     mpmath_allclose(
         sc.en,
         mpmath.expint,
-        [UIntArg(0, 50), Arg(1, -MINEXP, inclusive_a=False)],
+        [UIntArg(0, 50), Arg(1.5, -MINEXP, inclusive_a=False)],
         400,
-        rtol=5e-15,
+        rtol=2e-15,
         # Mpmath hangs if you use lower precision.
         dps=160,
     )

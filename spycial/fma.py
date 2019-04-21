@@ -6,6 +6,7 @@ from llvmlite import ir
 
 @intrinsic
 def _fma(typing_context, x, y, z):
+    """Compute x * y + z using a fused multiply add."""
     sig = float64(float64, float64, float64)
 
     def codegen(context, builder, signature, args):

@@ -75,7 +75,7 @@ def test_intermediate_x_and_n_less_than_16():
     mpmath_allclose(
         sc.en,
         mpmath.expint,
-        [UIntArg(0, 15), Arg(0.5, 1.5, inclusive_a=False, inclusive_b=False)],
+        [UIntArg(0, 15), Arg(0.5, 1.5)],
         100,
         rtol=4*_ε,
     )
@@ -85,7 +85,7 @@ def test_intermediate_x_and_n_between_16_and_50():
     mpmath_allclose(
         sc.en,
         mpmath.expint,
-        [UIntArg(16, 50), Arg(0.5, 1.5, inclusive_a=False, inclusive_b=False)],
+        [UIntArg(16, 50), Arg(0.5, 1.5)],
         100,
         rtol=4*_ε,
     )
@@ -95,7 +95,7 @@ def test_large_x():
     mpmath_allclose(
         sc.en,
         mpmath.expint,
-        [UIntArg(0, 50), Arg(1.5, -MINEXP, inclusive_a=False)],
+        [UIntArg(0, 50), Arg(1.5, -MINEXP)],
         400,
         rtol=2e-15,
         # Mpmath hangs if you use lower precision.

@@ -367,17 +367,17 @@ def _en(n, x):
         return 0
     elif n > 50:
         return _en_asymptotic_series_large_n(n, x)
-    elif 0.5 < x < 1.5:
+    elif x < 0.5:
+        return _en_power_series(n, x)
+    elif x > 1.5:
+        return _en_continued_fraction(n, x)
+    else:
         if n == 2:
             return np.exp(-x) - x * _e1(x)
         elif n < 15:
             return _en_finite_series(n, x)
         else:
             return _en_taylor_series_at_1(n, x)
-    elif x > 1:
-        return _en_continued_fraction(n, x)
-    else:
-        return _en_power_series(n, x)
 
 
 @vectorize(
